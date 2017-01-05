@@ -14,10 +14,10 @@ class ViewController: UIViewController {
     
     var searchController:AZSearchViewController!
     
-    
-    @IBAction func click(_ sender: UIButton) {
+    @IBAction func click(_ sender: UIBarButtonItem) {
         self.present(searchController, animated: true, completion: nil)
     }
+    
     
     
     override func viewDidLoad() {
@@ -26,9 +26,7 @@ class ViewController: UIViewController {
         self.searchController = AZSearchViewController()
         self.searchController.delegate = self
         self.searchController.dataSource = self
-        
-        
-        
+
         // Do any additional setup after loading the view, typically from a nib.
     }
 
@@ -36,7 +34,13 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
+    func pushWithTitle(text: String){
+        let controller = UIViewController()
+        controller.title = text
+        controller.view.backgroundColor = UIColor.white
+        self.navigationController?.pushViewController(controller, animated: true)
+    }
 
 }
 
@@ -47,7 +51,6 @@ extension ViewController: AZSearchViewDelegate{
     }
     
     func didTextChange(toText text: String, textLength: Int) {
-        print(text)
         self.resultArray.removeAll()
         
         if textLength > 3 {
@@ -58,8 +61,12 @@ extension ViewController: AZSearchViewDelegate{
     }
     
     func didSelectResult(at index: Int, text: String) {
-        print("selected \(index)")
-        self.searchController.dismiss(animated: true, completion: nil)
+        self.searchController.dismiss(animated: true, completion: {
+            self.pushWithTitle(text: text)
+        })
+        
+        
+        
     }
 }
 

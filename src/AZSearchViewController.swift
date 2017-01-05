@@ -57,7 +57,7 @@ protocol AZSearchViewDataSource {
 
 class AZSearchViewController: UIViewController{
         
-    @IBOutlet weak var navigationBarHeightConstraint: NSLayoutConstraint!
+    
     ///Auto complete tableview
     @IBOutlet fileprivate weak var tableView: UITableView!
     
@@ -66,6 +66,9 @@ class AZSearchViewController: UIViewController{
     
     ///The navigation item
     @IBOutlet fileprivate weak var navItem: UINavigationItem!
+    
+    
+    @IBOutlet fileprivate weak var navigationBarHeightConstraint: NSLayoutConstraint!
     
     ///SearchView delegate
     open var delegate: AZSearchViewDelegate!
@@ -248,6 +251,8 @@ class AZSearchViewController: UIViewController{
         
         
     }
+    
+    
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)

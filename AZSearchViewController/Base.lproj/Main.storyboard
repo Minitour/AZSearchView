@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11201" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11201" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="VET-qg-xTb">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Top Rated-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="AZSearchViewController" customModuleProvider="target" sceneMemberID="viewController">
@@ -18,24 +18,86 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JPc-Iy-jAQ">
-                                <state key="normal" title="Button"/>
-                                <connections>
-                                    <action selector="click:" destination="BYZ-38-t0r" eventType="touchUpInside" id="fsO-jU-z5s"/>
-                                </connections>
-                            </button>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="cO2-Wm-kGq">
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </tableView>
                         </subviews>
-                        <color key="backgroundColor" red="1" green="0.20000000000000001" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="JPc-Iy-jAQ" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="lwq-qF-H6n"/>
-                            <constraint firstItem="JPc-Iy-jAQ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="mjc-Op-Lwm"/>
+                            <constraint firstItem="cO2-Wm-kGq" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="8qm-g7-1F5"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="cO2-Wm-kGq" secondAttribute="bottom" id="NR0-eK-71G"/>
+                            <constraint firstItem="cO2-Wm-kGq" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="XPM-c4-png"/>
+                            <constraint firstAttribute="trailing" secondItem="cO2-Wm-kGq" secondAttribute="trailing" id="p6F-IY-a68"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="Nzt-FL-X7J"/>
+                    <navigationItem key="navigationItem" title="Top Rated" id="Nzt-FL-X7J">
+                        <barButtonItem key="rightBarButtonItem" systemItem="search" id="elv-H3-Lfv">
+                            <connections>
+                                <action selector="click:" destination="BYZ-38-t0r" id="oha-di-Qb5"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="2850.4000000000001" y="38.23088455772114"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="paY-zE-Du3">
+            <objects>
+                <viewController id="ls5-5h-D7o" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="xKa-EL-nF8"/>
+                        <viewControllerLayoutGuide type="bottom" id="keO-tn-DQP"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="oSy-Bd-Ahd">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" systemItem="recents" id="bd1-YH-XL6"/>
+                    <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jlJ-jV-0vX" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1287" y="918"/>
+        </scene>
+        <!--Tab Bar Controller-->
+        <scene sceneID="fEI-ME-g4j">
+            <objects>
+                <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="VET-qg-xTb" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" id="VC3-kB-UML">
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="ut6-lj-J98" kind="relationship" relationship="viewControllers" id="nWK-6k-uwT"/>
+                        <segue destination="ls5-5h-D7o" kind="relationship" relationship="viewControllers" id="fSE-Xr-RhU"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="gqN-ar-Vkn" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
             <point key="canvasLocation" x="972" y="38.23088455772114"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="ceD-tx-KIe">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="ut6-lj-J98" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" systemItem="topRated" id="DaM-zs-HW5"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="YQj-Lr-G53">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="jf7-oz-CF3"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="3V0-8E-cOD" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1911.2" y="38.23088455772114"/>
         </scene>
     </scenes>
 </document>
