@@ -61,10 +61,22 @@ self.present(searchController, animated: true, completion: nil)
 
 ##Customizations
 
+```swift
+    self.searchController.searchBarPlaceHolder = "Search Top Artists"
+    self.searchController.navigationBar.barTintColor = #colorLiteral(red: 0.9019607843, green: 0.2235294118, blue: 0.4, alpha: 1)
+    self.searchController.statusBarUnderlayOpacity = 0.10
+    self.searchController.navigationBar.tintColor = UIColor.lightGray
+    self.searchController.searchBarBackgroundColor = .white
+    self.searchController.statusBarStyle = .lightContent
+    self.searchController.keyboardAppearnce = .dark
+    let item = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(ViewController.close(sender:)))
+    item.tintColor = .white
+    self.searchController.navigationItem.rightBarButtonItem = item
+```
+
 You can configure the search controller with the following constants:
 
 ```swift
-
 struct AZSearchViewPref{
     
     //The background color of the controller, default is black with 60% opacity

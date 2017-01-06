@@ -19,6 +19,9 @@ class ViewController: UIViewController {
     }
     
     
+    func close(sender:AnyObject?){
+        searchController.dismiss(animated: true)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,6 +29,17 @@ class ViewController: UIViewController {
         self.searchController = AZSearchViewController()
         self.searchController.delegate = self
         self.searchController.dataSource = self
+        self.searchController.searchBarPlaceHolder = "Search Top Artists"
+        self.searchController.navigationBar.barTintColor = #colorLiteral(red: 0.9019607843, green: 0.2235294118, blue: 0.4, alpha: 1)
+        self.searchController.statusBarUnderlayOpacity = 0.10
+        self.searchController.navigationBar.tintColor = UIColor.lightGray
+        self.searchController.searchBarBackgroundColor = .white
+        self.searchController.statusBarStyle = .lightContent
+        self.searchController.keyboardAppearnce = .dark
+        let item = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(ViewController.close(sender:)))
+        item.tintColor = .white
+        self.searchController.navigationItem.rightBarButtonItem = item
+        
 
         // Do any additional setup after loading the view, typically from a nib.
     }

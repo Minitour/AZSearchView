@@ -59,16 +59,22 @@ class AZSearchViewController: UIViewController{
         
     
     ///Auto complete tableview
-    @IBOutlet fileprivate weak var tableView: UITableView!
+    @IBOutlet fileprivate var tableView: UITableView!
     
     ///The navigation bar
-    @IBOutlet fileprivate weak var navigationBar: UINavigationBar!
+    @IBOutlet var navigationBar: UINavigationBar!
     
     ///The navigation item
-    @IBOutlet fileprivate weak var navItem: UINavigationItem!
+    @IBOutlet fileprivate var navItem: UINavigationItem!
     
+    //The view under the status bar
+    @IBOutlet fileprivate var statusBarUnderlayView: UIView!
     
-    @IBOutlet fileprivate weak var navigationBarHeightConstraint: NSLayoutConstraint!
+    //The height constraint of the navigation bar
+    @IBOutlet fileprivate var navigationBarHeightConstraint: NSLayoutConstraint!
+    
+    //The height constraint of the view that underlays the status bar
+    @IBOutlet fileprivate var statusBarUnderlayHeightConstraint: NSLayoutConstraint!
     
     ///SearchView delegate
     open var delegate: AZSearchViewDelegate!
@@ -98,16 +104,17 @@ class AZSearchViewController: UIViewController{
     }
     
     ///Computed variable to set the search bar background color
-    open var searchBarBackgroundColor: UIColor?{
-        set{
-            if let searchField = searchBar.value(forKey: "searchField"){
-                (searchField as! UITextField).backgroundColor = newValue!
+    open var searchBarBackgroundColor: UIColor = AZSearchViewPref.searchBarColor{
+        didSet{
+            if searchBar != nil, let searchField = searchBar.value(forKey: "searchField"){
+                (searchField as! UITextField).backgroundColor = searchBarBackgroundColor
             }
-        }get{
-            if let searchField = searchBar.value(forKey: "searchField"){
-                return (searchField as! UITextField).backgroundColor
-            }
-            return nil
+        }
+    }
+    
+    open var keyboardAppearnce: UIKeyboardAppearance = .default {
+        didSet{
+            self.searchBar.keyboardAppearance = keyboardAppearnce
         }
     }
     
@@ -119,19 +126,40 @@ class AZSearchViewController: UIViewController{
     }
     
     ///The search bar place holder text
-    open var searchBarPlaceHolder: String?{
-        get{
-            return self.searchBar.placeholder
-        }set{
-            self.searchBar.placeholder = newValue
+    open var searchBarPlaceHolder: String = "Search"{
+        didSet{
+            if (self.searchBar != nil){
+               self.searchBar.placeholder = searchBarPlaceHolder
+            }
+            
         }
     }
     
+    ///A var to change the status bar appearnce
+    open var statusBarStyle: UIStatusBarStyle = .default{
+        didSet{
+            setNeedsStatusBarAppearanceUpdate()
+        }
+    }
+    
+    ///A var to change the opacity under the status bar
+    open var statusBarUnderlayOpacity: CGFloat = 0 {
+        didSet{
+            if statusBarUnderlayView != nil {
+                let alpha =  statusBarUnderlayOpacity > 0.10 ? 0.10 : max(0, statusBarUnderlayOpacity)
+                self.statusBarUnderlayView.backgroundColor = UIColor(colorLiteralRed: 0, green: 0, blue: 0, alpha: Float(alpha))
+            }
+        }
+    }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle{
+        return self.statusBarStyle
+    }
+    
     ///Private var to assist viewDidAppear
-    fileprivate var appearCounter = 0
+    fileprivate var didAppear = false
     
     //MARK: - Init
-    
     convenience init(){
         let bundle = Bundle(for: AZSearchViewController.self)
         self.init(nibName: AZSearchViewPref.nibName, bundle: bundle)
@@ -163,66 +191,65 @@ class AZSearchViewController: UIViewController{
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //update status bar underlayig view
+        self.statusBarUnderlayView.backgroundColor = UIColor(colorLiteralRed: 0, green: 0, blue: 0, alpha: Float(self.statusBarUnderlayOpacity))
+        
+        //update view background
         self.view.backgroundColor = AZSearchViewPref.backgroundColor
         
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: AZSearchViewPref.reuseIdetentifer)
-        tableView.tableFooterView = UIView()
-        tableView.isHidden = true
-        tableView.delegate = self
-        tableView.dataSource = self
-        
+        //setup tableview
+        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: AZSearchViewPref.reuseIdetentifer)
+        self.tableView.tableFooterView = UIView()
+        self.tableView.isHidden = true
+        self.tableView.delegate = self
+        self.tableView.dataSource = self
         
         var orientation = 0
-        if UIDevice.current.orientation.isLandscape {
-            orientation = 1
-        } else {
-            orientation = 0
-        }
+        if UIDevice.current.orientation.isLandscape {orientation = 1} else {orientation = 0}
         
         let height = orientation == 0 ? AZSearchViewPref.searchBarPortraitHeight : AZSearchViewPref.searchBarLandscapeHeight
         
-        tableView.contentInset = UIEdgeInsets(top: height, left: 0, bottom: 0, right: 0)
-        tableView.scrollIndicatorInsets = UIEdgeInsets(top: height, left: 0, bottom: 0, right: 0)
+        self.tableView.contentInset = UIEdgeInsets(top: height, left: 0, bottom: 0, right: 0)
+        self.tableView.scrollIndicatorInsets = UIEdgeInsets(top: height, left: 0, bottom: 0, right: 0)
         
+        //setup search bar
+        self.searchBar.placeholder = self.searchBarPlaceHolder
         
-        searchBar.placeholder = "Search"
+        if let searchField = searchBar.value(forKey: "searchField"){(searchField as! UITextField).backgroundColor = self.searchBarBackgroundColor}
         
-        if let searchField = searchBar.value(forKey: "searchField"){
-            (searchField as! UITextField).backgroundColor = AZSearchViewPref.searchBarColor
-        }
+        let offset = orientation == 0 ? AZSearchViewPref.searchBarPortraitOffset : AZSearchViewPref.searchBarLandscapeOffset
         
-        searchBar.delegate = self
-        
-        searchBar.searchFieldBackgroundPositionAdjustment = UIOffset(horizontal: 0, vertical: AZSearchViewPref.searchBarPortraitOffset)
+        self.searchBar.searchFieldBackgroundPositionAdjustment = UIOffset(horizontal: 0, vertical: offset)
         
         self.navItem.titleView = self.searchBar
         
+        self.searchBar.delegate = self
         
+        //setup background tap gesture
         let tap = UITapGestureRecognizer(target: self, action: #selector(AZSearchViewController.didTapBackground(sender:)))
         tap.delegate = self
         self.view.addGestureRecognizer(tap)
         
+        //add observers to listen to keyboard events
         NotificationCenter.default.addObserver(self, selector: #selector(AZSearchViewController.keyboardWillShow(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(AZSearchViewController.keyboardWillHide(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.appearCounter += 1
-        
+        //open keyboard
         self.searchBar.becomeFirstResponder()
         
+        //fix bar height
         var orientation = 0
-        if UIDevice.current.orientation.isLandscape {
-            orientation = 1
-        } else {
-            orientation = 0
-        }
+        if UIDevice.current.orientation.isLandscape {orientation = 1} else {orientation = 0}
         
         if orientation == 0 {
             self.barHeight = AZSearchViewPref.searchBarPortraitHeight
+            self.statusBarUnderlayHeightConstraint.constant = 20
         }else{
             self.barHeight = AZSearchViewPref.searchBarLandscapeHeight
+            self.statusBarUnderlayHeightConstraint.constant = 0
         }
         
         let animations: ()-> Void = {
@@ -236,8 +263,9 @@ class AZSearchViewController: UIViewController{
             self.tableView.scrollIndicatorInsets = UIEdgeInsets(top: self.barHeight, left: 0, bottom: self.tableView.scrollIndicatorInsets.bottom, right: 0)
         }
         
-        if appearCounter == 1 {
+        if  !self.didAppear {
             animations()
+            self.didAppear = true
         }else{
             UIView.animate(withDuration: AZSearchViewPref.animationDuration, animations: {
                 animations()
@@ -245,14 +273,8 @@ class AZSearchViewController: UIViewController{
             })
         }
         
-        //fix bar height
-        
-        
-        
         
     }
-    
-    
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
@@ -268,8 +290,10 @@ class AZSearchViewController: UIViewController{
             }) { (context) in
                 if orientation == 0 {
                     self.barHeight = AZSearchViewPref.searchBarPortraitHeight
+                    self.statusBarUnderlayHeightConstraint.constant = 20
                 }else{
                     self.barHeight = AZSearchViewPref.searchBarLandscapeHeight
+                    self.statusBarUnderlayHeightConstraint.constant = 0
                 }
                 
                 UIView.animate(withDuration: AZSearchViewPref.animationDuration, animations: {
@@ -292,7 +316,9 @@ class AZSearchViewController: UIViewController{
     fileprivate func setup(){
         self.modalPresentationStyle = .overCurrentContext
         self.modalTransitionStyle = .crossDissolve
+        self.modalPresentationCapturesStatusBarAppearance = true
         self.searchBar = UISearchBar()
+        if ((self.view) != nil){}
     }
     
     ///reloadData - refreshes the UITableView. If the data source function `results()` contains 0 index, the table view will be hidden.
