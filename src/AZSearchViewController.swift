@@ -3,13 +3,13 @@
 //  AZSearchViewController
 //
 //  Created by Antonio Zaitoun on 04/01/2017.
-//  Copyright © 2017 Antonio Zaitoun. All rights reserved.
+//  Copyright © 2017 Crofis. All rights reserved.
 //
 
 import Foundation
 import UIKit
 
-struct AZSearchViewPref{
+struct AZSearchViewDefaults{
     
     static let nibName: String = "AZSearchView"
     
@@ -28,30 +28,79 @@ struct AZSearchViewPref{
     static let searchBarLandscapeOffset:CGFloat = 0
     
     static let animationDuration = 0.3
-
+    
+    static let cellHeight:CGFloat = 44
 }
+
+
+//MARK: - AZSearchViewDelegate
 
 protocol AZSearchViewDelegate{
     ///didTextChange is called once the user types/deletes.
+    /// - parameter searchView: Is the current instance of AZSearchViewController.
     /// - parameter text: Is the new text.
     /// - parameter textLength: Is the length of the new text.
-    func didTextChange(toText text: String, textLength: Int)
+    func searchView(_ searchView: AZSearchViewController,didTextChangeTo text: String, textLength: Int)
     
     ///didSearch is called once the user clicks the `Search` button in the keyboard.
+    /// - parameter searchView: Is the current instance of AZSearchViewController.
     /// - parameter text: Is the text that the user is searching for.
-    func didSearch(forText text: String)
+    func searchView(_ searchView: AZSearchViewController,didSearchForText text: String)
     
     ///didSelectResult is called once the user has selected one of the results in the table view.
+    /// - parameter searchView: Is the current instance of AZSearchViewController.
     /// - parameter index: Is the index of the item that was selected.
     /// - parameter text: Is the text of the selected result. Note that this is fetched from the data source, so if the data source function `results()` has changed it's data set this will return the new data.
-    func didSelectResult(at index: Int,text: String)
+    func searchView(_ searchView: AZSearchViewController, didSelectResultAt index: Int,text: String)
+    
+    ///Optional function, override if you wish to add custom actions to your cells.
+    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, editActionsForRowAtIndexPath indexPath: IndexPath) -> [UITableViewRowAction]?
+    
+    ///Optional function, override if you wish to modify the height of each row.
+    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     
 }
+
+extension AZSearchViewDelegate{
+    func searchView(_ searchView: AZSearchViewController,tableView: UITableView, editActionsForRowAtIndexPath indexPath: IndexPath) -> [UITableViewRowAction]?{
+        return []
+    }
+    
+    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return AZSearchViewDefaults.cellHeight
+    }
+}
+
+//MARK: - AZSearchViewDataSource
 
 protocol AZSearchViewDataSource {
     ///results is called whenever the UITableView's data source functions `cellForRowAt` and `numberOfRowsInSection` and when calling `reloadData()` on an instance of `AZSearchViewController`.
     /// - returns: An array of strings which are displayed as a auto-complete suggestion.
     func results()->[String]
+    
+    ///Optional function, override if you wish to dequeue a custom cell class.
+    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
+    
+    ///Optional function, override if you want to allow a cell to be edited.
+    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool
+    
+    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath)
+    
+}
+
+//This extension is used to make the function optional
+extension AZSearchViewDataSource {
+    func searchView(_ searchView: AZSearchViewController,tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell{
+        let cell = tableView.dequeueReusableCell(withIdentifier: searchView.cellIdentifier)
+        cell?.textLabel?.text = results()[indexPath.row]
+        return cell!
+    }
+    
+    func searchView(_ searchView: AZSearchViewController,tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return false
+    }
+    
+    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath){}
     
 }
 
@@ -104,7 +153,7 @@ class AZSearchViewController: UIViewController{
     }
     
     ///Computed variable to set the search bar background color
-    open var searchBarBackgroundColor: UIColor = AZSearchViewPref.searchBarColor{
+    open var searchBarBackgroundColor: UIColor = AZSearchViewDefaults.searchBarColor{
         didSet{
             if searchBar != nil, let searchField = searchBar.value(forKey: "searchField"){
                 (searchField as! UITextField).backgroundColor = searchBarBackgroundColor
@@ -152,6 +201,27 @@ class AZSearchViewController: UIViewController{
         }
     }
     
+    ///A var to change the separator color
+    open var separatorColor: UIColor = UIColor.lightGray{
+        didSet{
+            self.tableView.separatorColor = separatorColor
+        }
+    }
+    
+    ///A var to modify the separator offset
+    open var separatorInset: UIEdgeInsets = UIEdgeInsets.zero{
+        didSet{
+            self.tableView.separatorInset = separatorInset
+        }
+    }
+    
+    ///The cell reuse identifier
+    private (set) open var cellIdentifier: String = AZSearchViewDefaults.reuseIdetentifer
+    
+    ///The cell reuse class
+    private (set) open var cellClass: AnyClass = UITableViewCell.self
+    
+    //The preferred status bar style
     override var preferredStatusBarStyle: UIStatusBarStyle{
         return self.statusBarStyle
     }
@@ -162,7 +232,14 @@ class AZSearchViewController: UIViewController{
     //MARK: - Init
     convenience init(){
         let bundle = Bundle(for: AZSearchViewController.self)
-        self.init(nibName: AZSearchViewPref.nibName, bundle: bundle)
+        self.init(nibName: AZSearchViewDefaults.nibName, bundle: bundle)
+    }
+    
+    convenience init(cellReuseIdentifier cellId: String,cellReuseClass: AnyClass){
+        self.init()
+        self.cellIdentifier = cellId
+        self.cellClass = cellReuseClass
+        
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -195,10 +272,10 @@ class AZSearchViewController: UIViewController{
         self.statusBarUnderlayView.backgroundColor = UIColor(colorLiteralRed: 0, green: 0, blue: 0, alpha: Float(self.statusBarUnderlayOpacity))
         
         //update view background
-        self.view.backgroundColor = AZSearchViewPref.backgroundColor
+        self.view.backgroundColor = AZSearchViewDefaults.backgroundColor
         
         //setup tableview
-        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: AZSearchViewPref.reuseIdetentifer)
+        self.tableView.register(self.cellClass, forCellReuseIdentifier: self.cellIdentifier)
         self.tableView.tableFooterView = UIView()
         self.tableView.isHidden = true
         self.tableView.delegate = self
@@ -207,7 +284,7 @@ class AZSearchViewController: UIViewController{
         var orientation = 0
         if UIDevice.current.orientation.isLandscape {orientation = 1} else {orientation = 0}
         
-        let height = orientation == 0 ? AZSearchViewPref.searchBarPortraitHeight : AZSearchViewPref.searchBarLandscapeHeight
+        let height = orientation == 0 ? AZSearchViewDefaults.searchBarPortraitHeight : AZSearchViewDefaults.searchBarLandscapeHeight
         
         self.tableView.contentInset = UIEdgeInsets(top: height, left: 0, bottom: 0, right: 0)
         self.tableView.scrollIndicatorInsets = UIEdgeInsets(top: height, left: 0, bottom: 0, right: 0)
@@ -217,7 +294,7 @@ class AZSearchViewController: UIViewController{
         
         if let searchField = searchBar.value(forKey: "searchField"){(searchField as! UITextField).backgroundColor = self.searchBarBackgroundColor}
         
-        let offset = orientation == 0 ? AZSearchViewPref.searchBarPortraitOffset : AZSearchViewPref.searchBarLandscapeOffset
+        let offset = orientation == 0 ? AZSearchViewDefaults.searchBarPortraitOffset : AZSearchViewDefaults.searchBarLandscapeOffset
         
         self.searchBar.searchFieldBackgroundPositionAdjustment = UIOffset(horizontal: 0, vertical: offset)
         
@@ -245,18 +322,18 @@ class AZSearchViewController: UIViewController{
         if UIDevice.current.orientation.isLandscape {orientation = 1} else {orientation = 0}
         
         if orientation == 0 {
-            self.barHeight = AZSearchViewPref.searchBarPortraitHeight
+            self.barHeight = AZSearchViewDefaults.searchBarPortraitHeight
             self.statusBarUnderlayHeightConstraint.constant = 20
         }else{
-            self.barHeight = AZSearchViewPref.searchBarLandscapeHeight
+            self.barHeight = AZSearchViewDefaults.searchBarLandscapeHeight
             self.statusBarUnderlayHeightConstraint.constant = 0
         }
         
         let animations: ()-> Void = {
             if orientation == 0 {
-                self.searchBarOffset = UIOffset(horizontal: 0, vertical: AZSearchViewPref.searchBarPortraitOffset)
+                self.searchBarOffset = UIOffset(horizontal: 0, vertical: AZSearchViewDefaults.searchBarPortraitOffset)
             }else{
-                self.searchBarOffset = UIOffset(horizontal: 0, vertical: AZSearchViewPref.searchBarLandscapeOffset)
+                self.searchBarOffset = UIOffset(horizontal: 0, vertical: AZSearchViewDefaults.searchBarLandscapeOffset)
             }
             
             self.tableView.contentInset = UIEdgeInsets(top: self.barHeight, left: 0, bottom: self.tableView.contentInset.bottom, right: 0)
@@ -267,7 +344,7 @@ class AZSearchViewController: UIViewController{
             animations()
             self.didAppear = true
         }else{
-            UIView.animate(withDuration: AZSearchViewPref.animationDuration, animations: {
+            UIView.animate(withDuration: AZSearchViewDefaults.animationDuration, animations: {
                 animations()
                 self.view.layoutIfNeeded()
             })
@@ -289,18 +366,18 @@ class AZSearchViewController: UIViewController{
             
             }) { (context) in
                 if orientation == 0 {
-                    self.barHeight = AZSearchViewPref.searchBarPortraitHeight
+                    self.barHeight = AZSearchViewDefaults.searchBarPortraitHeight
                     self.statusBarUnderlayHeightConstraint.constant = 20
                 }else{
-                    self.barHeight = AZSearchViewPref.searchBarLandscapeHeight
+                    self.barHeight = AZSearchViewDefaults.searchBarLandscapeHeight
                     self.statusBarUnderlayHeightConstraint.constant = 0
                 }
                 
-                UIView.animate(withDuration: AZSearchViewPref.animationDuration, animations: {
+                UIView.animate(withDuration: AZSearchViewDefaults.animationDuration, animations: {
                     if orientation == 0 {
-                        self.searchBarOffset = UIOffset(horizontal: 0, vertical: AZSearchViewPref.searchBarPortraitOffset)
+                        self.searchBarOffset = UIOffset(horizontal: 0, vertical: AZSearchViewDefaults.searchBarPortraitOffset)
                     }else{
-                        self.searchBarOffset = UIOffset(horizontal: 0, vertical: AZSearchViewPref.searchBarLandscapeOffset)
+                        self.searchBarOffset = UIOffset(horizontal: 0, vertical: AZSearchViewDefaults.searchBarLandscapeOffset)
                     }
                     
                     self.tableView.contentInset = UIEdgeInsets(top: self.barHeight, left: 0, bottom: self.tableView.contentInset.bottom, right: 0)
@@ -370,9 +447,18 @@ extension AZSearchViewController: UIGestureRecognizerDelegate{
 
 extension AZSearchViewController: UITableViewDelegate{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.delegate.didSelectResult(at: indexPath.row, text: dataSource.results()[indexPath.row])
+        self.delegate.searchView(self, didSelectResultAt: indexPath.row, text: dataSource.results()[indexPath.row])
         self.tableView.deselectRow(at: indexPath, animated: true)
     }
+    
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        return self.delegate.searchView(self, tableView: tableView, editActionsForRowAtIndexPath: indexPath)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return self.delegate.searchView(self, tableView: tableView, heightForRowAt: indexPath)
+    }
+    
 }
 
 //MARK: - UITableViewDataSource
@@ -383,10 +469,17 @@ extension AZSearchViewController: UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell")
-        cell?.textLabel?.text = self.dataSource.results()[indexPath.row]
-        return cell!
+        return self.dataSource.searchView(self,tableView: tableView, cellForRowAt: indexPath)
     }
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return self.dataSource.searchView(self, tableView: tableView, canEditRowAt: indexPath)
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        self.dataSource.searchView(self, tableView: tableView, commit: editingStyle, forRowAt: indexPath)
+    }
+    
 }
 
 //MARK: - UISearchBarDelegate
@@ -394,11 +487,10 @@ extension AZSearchViewController: UITableViewDataSource{
 extension AZSearchViewController: UISearchBarDelegate{
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        self.delegate.didTextChange(toText: searchBar.text!, textLength: searchBar.text!.characters.count)
+        self.delegate.searchView(self, didTextChangeTo: searchBar.text!, textLength: searchBar.text!.characters.count)
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        self.delegate.didSearch(forText: searchBar.text!)
+        self.delegate.searchView(self, didSearchForText: searchBar.text!)
     }
 }
-

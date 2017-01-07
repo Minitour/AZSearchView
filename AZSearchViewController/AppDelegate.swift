@@ -3,7 +3,7 @@
 //  AZSearchViewController
 //
 //  Created by Antonio Zaitoun on 04/01/2017.
-//  Copyright © 2017 Antonio Zaitoun. All rights reserved.
+//  Copyright © 2017 Crofis. All rights reserved.
 //
 
 import UIKit

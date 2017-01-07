@@ -16,21 +16,23 @@ Implement the delegate and data source protocols:
 ```swift
 extension ViewController: AZSearchViewDelegate{
     
-    func didSearch(forText text: String) {
-        searchController.dismiss(animated: false, completion: nil)
+    func searchView(_ searchView: AZSearchViewController, didSearchForText text: String) {
+        searchView.dismiss(animated: false, completion: nil)
     }
     
-    func didTextChange(toText text: String, textLength: Int) {
-        
-        //update your resultArray here
-        
-        //finally reload the data
-        self.searchController.reloadData()
+    func searchView(_ searchView: AZSearchViewController, didTextChangeTo text: String, textLength: Int) {
+        self.resultArray.removeAll()
+        if textLength > 3 {
+            for i in 0..<arc4random_uniform(10)+1 {self.resultArray.append("\(text) \(i+1)")}
+        }
+
+        searchView.reloadData()
     }
     
-    func didSelectResult(at index: Int, text: String) {
-        //dismiss the controller once user selects somethings
-        self.searchController.dismiss(animated: true, completion: nil)
+    func searchView(_ searchView: AZSearchViewController, didSelectResultAt index: Int, text: String) {
+        self.searchController.dismiss(animated: true, completion: {
+            self.pushWithTitle(text: text)
+        })
     }
 }
 
