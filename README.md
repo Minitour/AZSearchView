@@ -3,7 +3,6 @@ A search controller with auto-complete suggestions written in Swift 3.
 
 <img src="screenshots/gif1.gif"  height="400" /> <img src="screenshots/gif2.gif"  height="400" />
 
-
 ##Usage
 
 Create a property of type ```AZSearchViewController``` and a String array to hold the data.
@@ -63,6 +62,11 @@ self.present(searchController, animated: true, completion: nil)
 
 ##Customizations
 
+Default Vs. Customized
+
+<img src="screenshots/default.png"  height="400" />
+<img src="screenshots/customized.png"  height="400" />
+
 ```swift
     self.searchController.searchBarPlaceHolder = "Search Top Artists"
     self.searchController.navigationBar.barTintColor = #colorLiteral(red: 0.9019607843, green: 0.2235294118, blue: 0.4, alpha: 1)
@@ -76,7 +80,7 @@ self.present(searchController, animated: true, completion: nil)
     self.searchController.navigationItem.rightBarButtonItem = item
 ```
 
-You can configure the search controller with the following constants:
+You can also configure with the following constants:
 
 ```swift
 struct AZSearchViewPref{
