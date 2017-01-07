@@ -1,7 +1,7 @@
 # AZSearchView
 A search controller with auto-complete suggestions written in Swift 3.
 
-<img src="screenshots/gif1.gif"  height="400" /> <img src="screenshots/gif2.gif"  height="400" />
+<img src="screenshots/gif1.gif"  height="400" />
 
 ##Usage
 
@@ -29,7 +29,7 @@ extension ViewController: AZSearchViewDelegate{
     }
     
     func searchView(_ searchView: AZSearchViewController, didSelectResultAt index: Int, text: String) {
-        self.searchController.dismiss(animated: true, completion: {
+        searchView.dismiss(animated: true, completion: {
             self.pushWithTitle(text: text)
         })
     }
@@ -80,31 +80,41 @@ Default Vs. Customized
     self.searchController.navigationItem.rightBarButtonItem = item
 ```
 
-You can also configure with the following constants:
+And by implementing these optional delegate/datasource methods:
 
 ```swift
-struct AZSearchViewPref{
-    
-    //The background color of the controller, default is black with 60% opacity
-    static let backgroundColor: UIColor = UIColor(colorLiteralRed: 0.0, green: 0.0, blue: 0.0, alpha: 0.6)
-   
-    //The search bar background color, default is a light grey color
-    static let searchBarColor: UIColor = UIColor(colorLiteralRed: 0.86, green: 0.86, blue: 0.86, alpha: 1)
-    
-    /*I recommended not to modify any of these values*/
-    
-    static let searchBarPortraitHeight:CGFloat = 64
-    
-    static let searchBarLandscapeHeight:CGFloat = 32
-    
-    static let searchBarPortraitOffset:CGFloat = 10
-    
-    static let searchBarLandscapeOffset:CGFloat = 0
-    
-    //The animation duration after rotating from portrait to landscape.
-    static let animationDuration = 0.3
-
+extension ViewController: AZSearchViewDelegate{
+    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 50
+    }
 }
+```
 
+```swift
+extension ViewController: AZSearchViewDataSource{
+
+    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: searchView.cellIdentifier)
+        cell?.textLabel?.text = self.resultArray[indexPath.row]
+        cell?.imageView?.image = #imageLiteral(resourceName: "ic_history").withRenderingMode(.alwaysTemplate)
+        cell?.imageView?.tintColor = UIColor.gray
+        cell?.contentView.backgroundColor = .white
+        return cell!
+    }
+    
+    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, editActionsForRowAtIndexPath indexPath: IndexPath) -> [UITableViewRowAction]? {
+        
+        let remove = UITableViewRowAction(style: .destructive, title: "Remove") { action, index in
+            self.resultArray.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }    
+        remove.backgroundColor = #colorLiteral(red: 1, green: 0.4932718873, blue: 0.4739984274, alpha: 1)
+        return [remove]
+    }
+} 
 ```
 
