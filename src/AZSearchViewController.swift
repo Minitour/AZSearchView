@@ -86,6 +86,8 @@ public protocol AZSearchViewDataSource {
     
     func searchView(_ searchView: AZSearchViewController, tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath)
     
+    func statusBarStyle()-> UIStatusBarStyle
+    
 }
 
 //This extension is used to make the function optional
@@ -102,46 +104,25 @@ public extension AZSearchViewDataSource {
     
     func searchView(_ searchView: AZSearchViewController, tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath){}
     
+    func statusBarStyle()-> UIStatusBarStyle {return .default}
+    
 }
 
 public class AZSearchViewController: UIViewController{
     
-    
-    ///Auto complete tableview
-    @IBOutlet fileprivate var tableView: UITableView!
-    
-    ///The navigation bar
-    @IBOutlet var navigationBar: UINavigationBar!
-    
-    ///The navigation item
-    @IBOutlet fileprivate var navItem: UINavigationItem!
-    
-    //The view under the status bar
-    @IBOutlet fileprivate var statusBarUnderlayView: UIView!
-    
-    //The height constraint of the navigation bar
-    @IBOutlet fileprivate var navigationBarHeightConstraint: NSLayoutConstraint!
-    
-    //The height constraint of the view that underlays the status bar
-    @IBOutlet fileprivate var statusBarUnderlayHeightConstraint: NSLayoutConstraint!
-    
-    ///SearchView delegate
-    open var delegate: AZSearchViewDelegate!
-    
-    ///SearchView data source
-    open var dataSource: AZSearchViewDataSource!
-    
     ///The search bar
     fileprivate var searchBar:UISearchBar!
     
-    ///The bar height
-    open var barHeight:CGFloat {
-        get{
-            return navigationBarHeightConstraint.constant
-        }set{
-            navigationBarHeightConstraint.constant = newValue
-        }
-    }
+    ///Auto complete tableview
+    fileprivate var tableView: UITableView!
+    
+    ///SearchView delegate
+    open var delegate: AZSearchViewDelegate?
+    
+    ///SearchView data source
+    open var dataSource: AZSearchViewDataSource?
+    
+    open var navigationBarClosure: ((UINavigationBar)->Void)?
     
     ///The search bar offset
     internal var searchBarOffset: UIOffset{
@@ -167,12 +148,6 @@ public class AZSearchViewController: UIViewController{
         }
     }
     
-    ///The navigation item which is an IBOutlet
-    override public var navigationItem: UINavigationItem{
-        get{
-            return self.navItem
-        }
-    }
     
     ///The search bar place holder text
     open var searchBarPlaceHolder: String = "Search"{
@@ -188,16 +163,6 @@ public class AZSearchViewController: UIViewController{
     open var statusBarStyle: UIStatusBarStyle = .default{
         didSet{
             setNeedsStatusBarAppearanceUpdate()
-        }
-    }
-    
-    ///A var to change the opacity under the status bar
-    open var statusBarUnderlayOpacity: CGFloat = 0 {
-        didSet{
-            if statusBarUnderlayView != nil {
-                let alpha =  statusBarUnderlayOpacity > 0.10 ? 0.10 : max(0, statusBarUnderlayOpacity)
-                self.statusBarUnderlayView.backgroundColor = UIColor(colorLiteralRed: 0, green: 0, blue: 0, alpha: Float(alpha))
-            }
         }
     }
     
@@ -231,8 +196,9 @@ public class AZSearchViewController: UIViewController{
     
     //MARK: - Init
     convenience init(){
-        let bundle = Bundle(for: AZSearchViewController.self)
-        self.init(nibName: AZSearchViewDefaults.nibName, bundle: bundle)
+        //let bundle = Bundle(for: AZSearchViewController.self)
+        //self.init(nibName: AZSearchViewDefaults.nibName, bundle: bundle)
+        self.init(nibName: nil, bundle: nil)
     }
     
     convenience init(cellReuseIdentifier cellId: String,cellReuseClass: AnyClass){
@@ -265,11 +231,28 @@ public class AZSearchViewController: UIViewController{
         
     }
     
+    open func show(in controller: UIViewController,animated: Bool = true,completion: (()->Void)? = nil){
+        let navgation = WrapperNavigationController(rootViewController: self)
+        navgation.dataSource = self
+        navgation.modalPresentationStyle = .overCurrentContext
+        navgation.modalTransitionStyle = .crossDissolve
+        navgation.modalPresentationCapturesStatusBarAppearance = true
+        navigationBarClosure?(navgation.navigationBar)
+        controller.present(navgation, animated: animated, completion: completion)
+    }
+    
     override public func viewDidLoad() {
         super.viewDidLoad()
         
-        //update status bar underlayig view
-        self.statusBarUnderlayView.backgroundColor = UIColor(colorLiteralRed: 0, green: 0, blue: 0, alpha: Float(self.statusBarUnderlayOpacity))
+        
+        view.addSubview(tableView)
+        
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        tableView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        tableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        
         
         //update view background
         self.view.backgroundColor = AZSearchViewDefaults.backgroundColor
@@ -281,24 +264,24 @@ public class AZSearchViewController: UIViewController{
         self.tableView.delegate = self
         self.tableView.dataSource = self
         
-        var orientation = 0
-        if UIDevice.current.orientation.isLandscape {orientation = 1} else {orientation = 0}
-        
-        let height = orientation == 0 ? AZSearchViewDefaults.searchBarPortraitHeight : AZSearchViewDefaults.searchBarLandscapeHeight
-        
-        self.tableView.contentInset = UIEdgeInsets(top: height, left: 0, bottom: 0, right: 0)
-        self.tableView.scrollIndicatorInsets = UIEdgeInsets(top: height, left: 0, bottom: 0, right: 0)
+//        var orientation = 0
+//        if UIDevice.current.orientation.isLandscape {orientation = 1} else {orientation = 0}
+//        
+//        let height = orientation == 0 ? AZSearchViewDefaults.searchBarPortraitHeight : AZSearchViewDefaults.searchBarLandscapeHeight
+//        
+//        self.tableView.contentInset = UIEdgeInsets(top: height, left: 0, bottom: 0, right: 0)
+//        self.tableView.scrollIndicatorInsets = UIEdgeInsets(top: height, left: 0, bottom: 0, right: 0)
         
         //setup search bar
         self.searchBar.placeholder = self.searchBarPlaceHolder
         
         if let searchField = searchBar.value(forKey: "searchField"){(searchField as! UITextField).backgroundColor = self.searchBarBackgroundColor}
         
-        let offset = orientation == 0 ? AZSearchViewDefaults.searchBarPortraitOffset : AZSearchViewDefaults.searchBarLandscapeOffset
+        //let offset = orientation == 0 ? AZSearchViewDefaults.searchBarPortraitOffset : AZSearchViewDefaults.searchBarLandscapeOffset
         
-        self.searchBar.searchFieldBackgroundPositionAdjustment = UIOffset(horizontal: 0, vertical: offset)
+        //self.searchBar.searchFieldBackgroundPositionAdjustment = UIOffset(horizontal: 0, vertical: offset)
         
-        self.navItem.titleView = self.searchBar
+        self.navigationItem.titleView = self.searchBar
         
         self.searchBar.delegate = self
         
@@ -316,91 +299,21 @@ public class AZSearchViewController: UIViewController{
         super.viewWillAppear(animated)
         //open keyboard
         self.searchBar.becomeFirstResponder()
-        
-        //fix bar height
-        var orientation = 0
-        if UIDevice.current.orientation.isLandscape {orientation = 1} else {orientation = 0}
-        
-        if orientation == 0 {
-            self.barHeight = AZSearchViewDefaults.searchBarPortraitHeight
-            self.statusBarUnderlayHeightConstraint.constant = 20
-        }else{
-            self.barHeight = AZSearchViewDefaults.searchBarLandscapeHeight
-            self.statusBarUnderlayHeightConstraint.constant = 0
-        }
-        
-        let animations: ()-> Void = {
-            if orientation == 0 {
-                self.searchBarOffset = UIOffset(horizontal: 0, vertical: AZSearchViewDefaults.searchBarPortraitOffset)
-            }else{
-                self.searchBarOffset = UIOffset(horizontal: 0, vertical: AZSearchViewDefaults.searchBarLandscapeOffset)
-            }
-            
-            self.tableView.contentInset = UIEdgeInsets(top: self.barHeight, left: 0, bottom: self.tableView.contentInset.bottom, right: 0)
-            self.tableView.scrollIndicatorInsets = UIEdgeInsets(top: self.barHeight, left: 0, bottom: self.tableView.scrollIndicatorInsets.bottom, right: 0)
-        }
-        
-        if  !self.didAppear {
-            animations()
-            self.didAppear = true
-        }else{
-            UIView.animate(withDuration: AZSearchViewDefaults.animationDuration, animations: {
-                animations()
-                self.view.layoutIfNeeded()
-            })
-        }
-        
-        
     }
     
-    override public func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-        
-        var orientation = 0
-        if UIDevice.current.orientation.isLandscape {
-            orientation = 1
-        } else {
-            orientation = 0
-        }
-        coordinator.animate(alongsideTransition: { (context) in
-            
-        }) { (context) in
-            if orientation == 0 {
-                self.barHeight = AZSearchViewDefaults.searchBarPortraitHeight
-                self.statusBarUnderlayHeightConstraint.constant = 20
-            }else{
-                self.barHeight = AZSearchViewDefaults.searchBarLandscapeHeight
-                self.statusBarUnderlayHeightConstraint.constant = 0
-            }
-            
-            UIView.animate(withDuration: AZSearchViewDefaults.animationDuration, animations: {
-                if orientation == 0 {
-                    self.searchBarOffset = UIOffset(horizontal: 0, vertical: AZSearchViewDefaults.searchBarPortraitOffset)
-                }else{
-                    self.searchBarOffset = UIOffset(horizontal: 0, vertical: AZSearchViewDefaults.searchBarLandscapeOffset)
-                }
-                
-                self.tableView.contentInset = UIEdgeInsets(top: self.barHeight, left: 0, bottom: self.tableView.contentInset.bottom, right: 0)
-                self.tableView.scrollIndicatorInsets = UIEdgeInsets(top: self.barHeight, left: 0, bottom: self.tableView.scrollIndicatorInsets.bottom, right: 0)
-                
-                self.view.layoutIfNeeded()
-            })
-            
-        }
-        
-    }
     
     fileprivate func setup(){
         self.modalPresentationStyle = .overCurrentContext
         self.modalTransitionStyle = .crossDissolve
         self.modalPresentationCapturesStatusBarAppearance = true
         self.searchBar = UISearchBar()
-        if ((self.view) != nil){}
+        self.tableView = UITableView()
+        //if ((self.view) != nil){}
     }
     
     ///reloadData - refreshes the UITableView. If the data source function `results()` contains 0 index, the table view will be hidden.
     open func reloadData(){
-        if self.dataSource.results().count > 0 {
+        if (self.dataSource?.results().count ?? 0) > 0 {
             tableView.isHidden = false
         }else{
             tableView.isHidden = true
@@ -447,16 +360,16 @@ extension AZSearchViewController: UIGestureRecognizerDelegate{
 
 extension AZSearchViewController: UITableViewDelegate{
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.delegate.searchView(self, didSelectResultAt: indexPath.row, text: dataSource.results()[indexPath.row])
+        self.delegate?.searchView(self, didSelectResultAt: indexPath.row, text: dataSource?.results()[indexPath.row] ?? "")
         self.tableView.deselectRow(at: indexPath, animated: true)
     }
     
     public func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        return self.delegate.searchView(self, tableView: tableView, editActionsForRowAtIndexPath: indexPath)
+        return self.delegate?.searchView(self, tableView: tableView, editActionsForRowAtIndexPath: indexPath)
     }
     
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return self.delegate.searchView(self, tableView: tableView, heightForRowAt: indexPath)
+        return self.delegate?.searchView(self, tableView: tableView, heightForRowAt: indexPath) ?? 0
     }
     
 }
@@ -465,19 +378,19 @@ extension AZSearchViewController: UITableViewDelegate{
 
 extension AZSearchViewController: UITableViewDataSource{
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.dataSource.results().count
+        return self.dataSource?.results().count ?? 0
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return self.dataSource.searchView(self,tableView: tableView, cellForRowAt: indexPath)
+        return self.dataSource?.searchView(self,tableView: tableView, cellForRowAt: indexPath) ?? UITableViewCell()
     }
     
     public func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return self.dataSource.searchView(self, tableView: tableView, canEditRowAt: indexPath)
+        return self.dataSource?.searchView(self, tableView: tableView, canEditRowAt: indexPath) ?? false
     }
     
     public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        self.dataSource.searchView(self, tableView: tableView, commit: editingStyle, forRowAt: indexPath)
+        self.dataSource?.searchView(self, tableView: tableView, commit: editingStyle, forRowAt: indexPath)
     }
     
 }
@@ -487,10 +400,27 @@ extension AZSearchViewController: UITableViewDataSource{
 extension AZSearchViewController: UISearchBarDelegate{
     
     public func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        self.delegate.searchView(self, didTextChangeTo: searchBar.text!, textLength: searchBar.text!.characters.count)
+        self.delegate?.searchView(self, didTextChangeTo: searchBar.text!, textLength: searchBar.text!.characters.count)
     }
     
     public func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        self.delegate.searchView(self, didSearchForText: searchBar.text!)
+        self.delegate?.searchView(self, didSearchForText: searchBar.text!)
+    }
+}
+
+extension AZSearchViewController: WrapperDataSource{
+    func statusBar()-> UIStatusBarStyle{
+        return self.dataSource?.statusBarStyle() ?? .default
+    }
+}
+
+fileprivate protocol WrapperDataSource{
+    func statusBar()-> UIStatusBarStyle
+}
+
+fileprivate class WrapperNavigationController: UINavigationController{
+    open var dataSource: WrapperDataSource?
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return self.dataSource?.statusBar() ?? .default
     }
 }

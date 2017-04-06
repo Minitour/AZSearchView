@@ -17,7 +17,8 @@ class ViewController: UIViewController {
     var searchController:AZSearchViewController!
     
     @IBAction func click(_ sender: UIBarButtonItem) {
-        self.present(searchController, animated: true, completion: nil)
+        //self.present(searchController, animated: true, completion: nil)
+        searchController.show(in: self)
     }
     
     
@@ -42,14 +43,19 @@ class ViewController: UIViewController {
         //The search bar's placeholder text
         self.searchController.searchBarPlaceHolder = "Search Top Artists"
         
+        self.searchController.navigationBarClosure = { bar in
+            bar.barTintColor = #colorLiteral(red: 0.9019607843, green: 0.2235294118, blue: 0.4, alpha: 1)
+            bar.tintColor = UIColor.lightGray
+        }
+        
         //The navigation bar's background color
-        self.searchController.navigationBar.barTintColor = #colorLiteral(red: 0.9019607843, green: 0.2235294118, blue: 0.4, alpha: 1)
+        //self.searchController.navigationBar.barTintColor = #colorLiteral(red: 0.9019607843, green: 0.2235294118, blue: 0.4, alpha: 1)
         
         //The underlaying status bar view's opacity (min 0, max 0.10)
-        self.searchController.statusBarUnderlayOpacity = 0.10
+        //self.searchController.statusBarUnderlayOpacity = 0.10
         
         //The tint color of the navigation bar
-        self.searchController.navigationBar.tintColor = UIColor.lightGray
+        //self.searchController.navigationBar.tintColor = UIColor.lightGray
         
         //The search bar's (text field) background color
         self.searchController.searchBarBackgroundColor = .white
@@ -110,6 +116,10 @@ extension ViewController: AZSearchViewDelegate{
 }
 
 extension ViewController: AZSearchViewDataSource{
+    
+    func statusBarStyle() -> UIStatusBarStyle {
+        return .lightContent
+    }
     
     func results() -> [String] {
         return self.resultArray

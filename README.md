@@ -3,13 +3,13 @@ A search controller with auto-complete suggestions written in Swift 3.
 
 <img src="screenshots/gif1.gif"  height="400" />
 
-##Installation
+## Installation
 
 ```bash
 pod 'AZSearchView'
 ```
 
-##Usage
+## Usage
 
 Create a property of type ```AZSearchViewController``` and a String array to hold the data.
 ```swift
@@ -63,10 +63,10 @@ Now initialize the controller object:
 And finally present when needed:
 
 ```swift
-self.present(searchController, animated: true, completion: nil)
+searchController.show(in: self)
 ```
 
-##Customizations
+## Customizations
 
 Default Vs. Customized
 
