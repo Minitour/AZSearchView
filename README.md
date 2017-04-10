@@ -75,9 +75,13 @@ Default Vs. Customized
 
 ```swift
     self.searchController.searchBarPlaceHolder = "Search Top Artists"
-    self.searchController.navigationBar.barTintColor = #colorLiteral(red: 0.9019607843, green: 0.2235294118, blue: 0.4, alpha: 1)
-    self.searchController.statusBarUnderlayOpacity = 0.10
-    self.searchController.navigationBar.tintColor = UIColor.lightGray
+    self.searchController.navigationBarClosure = { bar in
+        //The navigation bar's background color
+        bar.barTintColor = #colorLiteral(red: 0.9019607843, green: 0.2235294118, blue: 0.4, alpha: 1)
+
+        //The tint color of the navigation bar
+        bar.tintColor = UIColor.lightGray
+    }
     self.searchController.searchBarBackgroundColor = .white
     self.searchController.statusBarStyle = .lightContent
     self.searchController.keyboardAppearnce = .dark

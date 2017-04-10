@@ -36,6 +36,7 @@ public struct AZSearchViewDefaults{
 //MARK: - AZSearchViewDelegate
 
 public protocol AZSearchViewDelegate{
+    
     ///didTextChange is called once the user types/deletes.
     /// - parameter searchView: Is the current instance of AZSearchViewController.
     /// - parameter text: Is the new text.
@@ -53,6 +54,13 @@ public protocol AZSearchViewDelegate{
     /// - parameter text: Is the text of the selected result. Note that this is fetched from the data source, so if the data source function `results()` has changed it's data set this will return the new data.
     func searchView(_ searchView: AZSearchViewController, didSelectResultAt index: Int,text: String)
     
+    /// Called when controller has been dismissed.
+    ///
+    /// - Parameters:
+    ///   - searchView: The current instance of AZSearchViewController.
+    ///   - text: Is the text.
+    func searchView(_ searchView: AZSearchViewController, didDismissWithText text: String)
+    
     ///Optional function, override if you wish to add custom actions to your cells.
     func searchView(_ searchView: AZSearchViewController, tableView: UITableView, editActionsForRowAtIndexPath indexPath: IndexPath) -> [UITableViewRowAction]?
     
@@ -62,6 +70,9 @@ public protocol AZSearchViewDelegate{
 }
 
 public extension AZSearchViewDelegate{
+    
+    func searchView(_ searchView: AZSearchViewController, didDismissWithText text: String){}
+    
     func searchView(_ searchView: AZSearchViewController,tableView: UITableView, editActionsForRowAtIndexPath indexPath: IndexPath) -> [UITableViewRowAction]?{
         return []
     }
@@ -111,7 +122,7 @@ public extension AZSearchViewDataSource {
 public class AZSearchViewController: UIViewController{
     
     ///The search bar
-    fileprivate var searchBar:UISearchBar!
+    fileprivate (set) open var searchBar:UISearchBar!
     
     ///Auto complete tableview
     fileprivate var tableView: UITableView!
@@ -264,22 +275,10 @@ public class AZSearchViewController: UIViewController{
         self.tableView.delegate = self
         self.tableView.dataSource = self
         
-//        var orientation = 0
-//        if UIDevice.current.orientation.isLandscape {orientation = 1} else {orientation = 0}
-//        
-//        let height = orientation == 0 ? AZSearchViewDefaults.searchBarPortraitHeight : AZSearchViewDefaults.searchBarLandscapeHeight
-//        
-//        self.tableView.contentInset = UIEdgeInsets(top: height, left: 0, bottom: 0, right: 0)
-//        self.tableView.scrollIndicatorInsets = UIEdgeInsets(top: height, left: 0, bottom: 0, right: 0)
-        
         //setup search bar
         self.searchBar.placeholder = self.searchBarPlaceHolder
         
         if let searchField = searchBar.value(forKey: "searchField"){(searchField as! UITextField).backgroundColor = self.searchBarBackgroundColor}
-        
-        //let offset = orientation == 0 ? AZSearchViewDefaults.searchBarPortraitOffset : AZSearchViewDefaults.searchBarLandscapeOffset
-        
-        //self.searchBar.searchFieldBackgroundPositionAdjustment = UIOffset(horizontal: 0, vertical: offset)
         
         self.navigationItem.titleView = self.searchBar
         

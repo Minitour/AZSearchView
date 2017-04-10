@@ -43,19 +43,14 @@ class ViewController: UIViewController {
         //The search bar's placeholder text
         self.searchController.searchBarPlaceHolder = "Search Top Artists"
         
+        
         self.searchController.navigationBarClosure = { bar in
+            //The navigation bar's background color
             bar.barTintColor = #colorLiteral(red: 0.9019607843, green: 0.2235294118, blue: 0.4, alpha: 1)
+            
+            //The tint color of the navigation bar
             bar.tintColor = UIColor.lightGray
         }
-        
-        //The navigation bar's background color
-        //self.searchController.navigationBar.barTintColor = #colorLiteral(red: 0.9019607843, green: 0.2235294118, blue: 0.4, alpha: 1)
-        
-        //The underlaying status bar view's opacity (min 0, max 0.10)
-        //self.searchController.statusBarUnderlayOpacity = 0.10
-        
-        //The tint color of the navigation bar
-        //self.searchController.navigationBar.tintColor = UIColor.lightGray
         
         //The search bar's (text field) background color
         self.searchController.searchBarBackgroundColor = .white
