@@ -238,6 +238,7 @@ public class AZSearchViewController: UIViewController{
     
     override public func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
         self.searchBar.resignFirstResponder()
+        self.delegate?.searchView(self, didDismissWithText: searchBar.text!)
         super.dismiss(animated: flag, completion: completion)
         
     }
