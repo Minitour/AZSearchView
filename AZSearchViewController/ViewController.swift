@@ -22,7 +22,7 @@ class ViewController: UIViewController {
     }
     
     
-    func close(sender:AnyObject?){
+    @objc func close(sender:AnyObject?){
         searchController.dismiss(animated: true)
     }
     

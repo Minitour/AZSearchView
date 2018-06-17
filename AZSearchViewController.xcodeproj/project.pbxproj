@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9D38727D20D6F67A00E6C27F /* AZSearchViewDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D38727C20D6F67A00E6C27F /* AZSearchViewDefaults.swift */; };
+		9D38727F20D6F6CA00E6C27F /* AZSearchViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D38727E20D6F6CA00E6C27F /* AZSearchViewDelegate.swift */; };
+		9D38728220D6F7A700E6C27F /* AZSearchViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D38728120D6F7A700E6C27F /* AZSearchViewDataSource.swift */; };
 		9D66AA9B1E1D7AD100D8BD92 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D66AA9A1E1D7AD100D8BD92 /* AppDelegate.swift */; };
 		9D66AA9D1E1D7AD100D8BD92 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D66AA9C1E1D7AD100D8BD92 /* ViewController.swift */; };
 		9D66AAA01E1D7AD100D8BD92 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9D66AA9E1E1D7AD100D8BD92 /* Main.storyboard */; };
@@ -16,6 +19,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9D38727C20D6F67A00E6C27F /* AZSearchViewDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AZSearchViewDefaults.swift; sourceTree = "<group>"; };
+		9D38727E20D6F6CA00E6C27F /* AZSearchViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AZSearchViewDelegate.swift; sourceTree = "<group>"; };
+		9D38728120D6F7A700E6C27F /* AZSearchViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AZSearchViewDataSource.swift; sourceTree = "<group>"; };
 		9D66AA971E1D7AD100D8BD92 /* AZSearchViewController.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AZSearchViewController.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D66AA9A1E1D7AD100D8BD92 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9D66AA9C1E1D7AD100D8BD92 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -71,6 +77,9 @@
 			isa = PBXGroup;
 			children = (
 				9D66AAB41E1EAA2E00D8BD92 /* AZSearchViewController.swift */,
+				9D38727C20D6F67A00E6C27F /* AZSearchViewDefaults.swift */,
+				9D38727E20D6F6CA00E6C27F /* AZSearchViewDelegate.swift */,
+				9D38728120D6F7A700E6C27F /* AZSearchViewDataSource.swift */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -107,7 +116,7 @@
 				TargetAttributes = {
 					9D66AA961E1D7AD100D8BD92 = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = Y759RK5K7D;
+						DevelopmentTeam = 35DWKWL79J;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -149,6 +158,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D66AA9D1E1D7AD100D8BD92 /* ViewController.swift in Sources */,
+				9D38727D20D6F67A00E6C27F /* AZSearchViewDefaults.swift in Sources */,
+				9D38728220D6F7A700E6C27F /* AZSearchViewDataSource.swift in Sources */,
+				9D38727F20D6F6CA00E6C27F /* AZSearchViewDelegate.swift in Sources */,
 				9D66AAB61E1EAA2E00D8BD92 /* AZSearchViewController.swift in Sources */,
 				9D66AA9B1E1D7AD100D8BD92 /* AppDelegate.swift in Sources */,
 			);
@@ -271,12 +283,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = Y759RK5K7D;
+				DEVELOPMENT_TEAM = 35DWKWL79J;
 				INFOPLIST_FILE = AZSearchViewController/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = mobi.newsound.AZSearchViewController;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -284,12 +296,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = Y759RK5K7D;
+				DEVELOPMENT_TEAM = 35DWKWL79J;
 				INFOPLIST_FILE = AZSearchViewController/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = mobi.newsound.AZSearchViewController;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
