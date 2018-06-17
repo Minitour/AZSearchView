@@ -10,8 +10,6 @@ import Foundation
 import UIKit
 
 
-
-
 public class AZSearchViewController: UIViewController{
     
     ///The search bar
