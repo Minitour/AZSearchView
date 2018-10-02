@@ -22,7 +22,7 @@ public protocol AZSearchViewDataSource {
     ///Optional function, override if you want to allow a cell to be edited.
     func searchView(_ searchView: AZSearchViewController, tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool
 
-    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath)
+    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath)
 
     func statusBarStyle()-> UIStatusBarStyle
 
@@ -40,7 +40,7 @@ public extension AZSearchViewDataSource {
         return false
     }
 
-    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath){}
+    func searchView(_ searchView: AZSearchViewController, tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath){}
 
     func statusBarStyle()-> UIStatusBarStyle {return .default}
 

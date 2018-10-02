@@ -182,8 +182,8 @@ public class AZSearchViewController: UIViewController{
         self.view.addGestureRecognizer(tap)
         
         //add observers to listen to keyboard events
-        NotificationCenter.default.addObserver(self, selector: #selector(AZSearchViewController.keyboardWillShow(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(AZSearchViewController.keyboardWillHide(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(AZSearchViewController.keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(AZSearchViewController.keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override public func viewWillAppear(_ animated: Bool) {
@@ -219,13 +219,13 @@ public class AZSearchViewController: UIViewController{
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        guard let kbSizeValue = notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue else { return }
-        guard let kbDurationNumber = notification.userInfo?[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber else { return }
+        guard let kbSizeValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        guard let kbDurationNumber = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber else { return }
         animateToKeyboardHeight(kbHeight: kbSizeValue.cgRectValue.height, duration: kbDurationNumber.doubleValue)
     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
-        guard let kbDurationNumber = notification.userInfo?[UIKeyboardAnimationDurationUserInfoKey] as? NSNumber else { return }
+        guard let kbDurationNumber = notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber else { return }
         animateToKeyboardHeight(kbHeight: 0, duration: kbDurationNumber.doubleValue)
     }
     
@@ -280,7 +280,7 @@ extension AZSearchViewController: UITableViewDataSource{
         return self.dataSource?.searchView(self, tableView: tableView, canEditRowAt: indexPath) ?? false
     }
     
-    public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         self.dataSource?.searchView(self, tableView: tableView, commit: editingStyle, forRowAt: indexPath)
     }
     
